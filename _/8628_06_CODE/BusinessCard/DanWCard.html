@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<script src="ARJS_Files/aframe.min.js"></script>
+<script src="ARJS_Files/aframe-ar.js"></script>
+
+<a-scene embedded arjs = 'trackingMethod: best;'>
+<a-anchor hit-testing-enabled='true'>
+    <a-entity
+      position="0.5 -2 -0.5"
+      scale="0.10 0.10 0.10"
+      obj-model="obj: url(models/Robot.obj);">
+      </a-entity>      
+      
+<!-- animated circle lights  -->
+
+<a-sphere position="0.5 1.5 -0.5" color="white" radius = "0.15">
+		<a-animation attribute="color"
+               dur="10000"
+               from="white"
+               to = "green"
+               repeat="indefinite"></a-animation>
+</a-sphere>
+
+<a-sphere position="2 0 -0.5" color="white" radius = "0.15">
+		<a-animation attribute="color"
+               dur="10000"
+               from="white"
+               to = "blue"
+               repeat="indefinite"></a-animation>
+</a-sphere>
+
+<a-sphere position="-0.5 0 -0.5" color="white" radius = "0.15">
+		<a-animation attribute="color"
+               dur="10000"
+               from="white"
+               to = "red"
+               repeat="indefinite"></a-animation>
+</a-sphere>
+
+<!-- Create Card Info Box Here -->
+<a-plane src ="textures/10742.jpg
+" height= "3" width = "3" color="grey" position="-2 1 0"></a-plane>
+<a-text value = "\n\nDaniel Wise -Augmented Reality Developer\n\nAR Bots.com\n\n@dwiseXone\n\n123456\n\nsomething@gmail.com" position="-3.5 2 0" height="3" width="3" color="white"></a-text>
+<a-image src="textures/headshot.jpg" width="1" height="1.5" position="-1 0.5 0"></a-image>
+</a-anchor>
+	<a-camera-static/>
+</a-scene>
+</html>

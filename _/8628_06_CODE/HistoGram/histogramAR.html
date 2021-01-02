@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+<meta charset="utf-8"/>
+<style type="text/css">
+* {
+	margin: 0;
+	padding: 0;
+}
+#container {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	overflow: hidden;
+}
+#graph{
+  position: absolute;
+  z-index: 999;
+  top: 10px;
+  left: 10px;
+  background: #fff;
+  color: #000;
+  padding: 3px;
+}
+#pink_plus{
+  position: absolute;
+  z-index: 999;
+  bottom: 70px;
+  right: 605px;
+  background: #fff;
+  color: #000;
+  padding: 3px;
+}
+#red_plus{
+  position: absolute;
+  z-index: 999;
+  bottom: 70px;
+  right: 355px;
+  background: #fff;
+  color: #000;
+  padding: 3px;
+}
+#grey_plus{
+  position: absolute;
+  z-index: 999;
+  bottom: 70px;
+  right: 160px;
+  background: #fff;
+  color: #000;
+  padding: 3px;
+}
+#white_plus{
+  position: absolute;
+  z-index: 999;
+  bottom: 70px;
+  right: 860px;
+  background: #fff;
+  color: #000;
+  padding: 3px;
+}
+#pink_minus{
+  position: absolute;
+  z-index: 999;
+  bottom: 70px;
+  right: 485px;
+  background: #fff;
+  color: #000;
+  padding: 3px;
+}
+#red_minus{
+  position: absolute;
+  z-index: 999;
+  bottom: 70px;
+  right: 260px;
+  background: #fff;
+  color: #000;
+  padding: 3px;
+}
+#grey_minus{
+  position: absolute;
+  z-index: 999;
+  bottom: 70px;
+  right: 80px;
+  background: #fff;
+  color: #000;
+  padding: 3px;
+}
+#white_minus{
+  position: absolute;
+  z-index: 999;
+  bottom: 70px;
+  right: 765px;
+  background: #fff;
+  color: #000;
+  padding: 3px;
+}
+#debugCanvas {
+  position: absolute;
+  z-index: 999;
+  opacity: 0.5;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+</style>
+</head>
+<body>
+  <canvas id="debugCanvas"></canvas>
+<div id="container"></div>
+<div id="graph"></div>
+<div id="pink_plus"></div>
+<div id="pink_minus"></div>
+<div id="red_plus"></div>
+<div id="red_minus"></div>
+<div id="grey_plus"></div>
+<div id="grey_minus"></div>
+<div id="white_plus"></div>
+<div id="white_minus"></div>
+<script type="text/javascript" src="js/awe-v8.js"></script>
+<script type="text/javascript" src="js/awe-loader.js"></script>
+<script type="text/javascript"> 
+graph.innerHTML ="<br />" + "<br />" + "<br />" +"100" + "<br />" + "<br />" + "<br />" + "<br />" + "80" + "<br />" + "<br />" + "<br />" + "<br />" + "60" + "<br />" + "<br />" + "<br />" + "<br />" + "40" + "<br />" + "<br />" + "<br />" + "<br />" + "20" + "<br />" + "<br />" + "<br />" + "<br />" + "<br />" + "10" + "<br />" + "<br />" + "<br />" + "<br />" + "<br />" + "0" ;
+pink_plus.innerHTML = "+";
+pink_minus.innerHTML = "-";
+red_plus.innerHTML = "+";
+red_minus.innerHTML = "-";
+grey_plus.innerHTML = "+";
+grey_minus.innerHTML = "-";
+white_plus.innerHTML = "+";
+white_minus.innerHTML = "-";
+  window.addEventListener('load', function() {
+    window.awe.init({
+      device_type: awe.AUTO_DETECT_DEVICE_TYPE,
+      settings: {
+      	container_id: 'container',
+        fps: 30,
+        default_camera_position: { x:0, y:0, z:0 },
+        default_lights:[
+          {
+            id: 'ambient_light',
+            type: 'ambient',
+            color: 0x666666
+          },
+          {
+            id: 'hemi',
+            type: 'hemisphere',
+            color: 0xCCCCCC,
+          },
+        ],
+      },
+      ready: function() {
+        
+        awe.util.require([
+          {
+            capabilities: ['gum','webgl'],
+            files: [ 
+              // base libraries
+              [ 'js/awe-standard-dependencies.js', 'js/awe-standard.js'],
+              // plugin dependencies
+              ['awe-jsartoolkit-dependencies.js','js/plugins/StereoEffect.js', 'js/plugins/VREffect.js'],
+              // plugins
+              'awe.marker_ar.js',
+              'js/plugins/awe.rendering_effects.js', 
+              'js/plugins/awe-standard-object_clicked_or_focused.js'
+            ],
+            success: function() { 
+			  awe.setup_scene();
+              
+              var click_plugin = awe.plugins.view('object_clicked');
+              if (click_plugin) {
+                click_plugin.register();
+                click_plugin.enable();
+              }
+			        
+			  awe.settings.update({data:{value: 'ar'}, where:{id: 'view_mode'}})
+
+              window.addEventListener('object_clicked', function(e) { 
+
+                var p = awe.projections.view(e.detail.projection_id);
+                //conditionals for adding data 
+                if (e.detail.projection_id === 'pinkP'){
+                    awe.projections.update({ 
+                       data:{
+                       scale:{ z: p.scale.z + 5}
+                    },
+                      where:{ id: 'marker_projection' }
+                    });
+                } 
+                if (e.detail.projection_id === "whiteP"){
+                  awe.projections.update({ 
+                          data:{
+                         scale:{ z: p.scale.z + 5}
+                      },
+                    where:{ id: 'marker_projection_2' }
+                    }); 
+                }
+                 if (e.detail.projection_id === "redP"){
+                  awe.projections.update({ 
+                          data:{
+                         scale:{ z: p.scale.z + 5}
+                      },
+                    where:{ id: 'marker_projection_3' }
+                    }); 
+                }
+                 if (e.detail.projection_id === "greyP"){
+                  awe.projections.update({ 
+                          data:{
+                         scale:{ z: p.scale.z + 5}
+                      },
+                    where:{ id: 'marker_projection_4' }
+                    }); 
+                }
+              //conditionals for subtracting data
+                if (e.detail.projection_id === 'pinkM'){
+                    awe.projections.update({ 
+                     data:{
+                     scale:{ z: p.scale.z - 5}
+                    },
+                  where:{ id: 'marker_projection' }
+                  });
+                } 
+                if (e.detail.projection_id === "whiteM"){
+                  awe.projections.update({ 
+                     data:{
+                     scale:{ z: p.scale.z - 5}
+                    },
+                  where:{ id: 'marker_projection_2' }
+                  });
+                }
+                if (e.detail.projection_id === "redM"){
+                  awe.projections.update({ 
+                     data:{
+                     scale:{ z: p.scale.z - 5}
+                    },
+                  where:{ id: 'marker_projection_3' }
+                  });
+                }
+                if (e.detail.projection_id === "greyM"){
+                  awe.projections.update({ 
+                     data:{
+                     scale:{ z: p.scale.z - 5}
+                    },
+                  where:{ id: 'marker_projection_4' }
+                  });
+                }
+            }, false);
+
+            awe.pois.add({ id:'jsartoolkit_marker_64', position: { x:0, y:0, z:0}, visible: false });
+              awe.projections.add({ 
+                id:'marker_projection', 
+                geometry: { shape: 'cube', x:50, y:50, z:10 },
+                position: { x:90, y:0, z:0},
+                rotation: { x:0, y:0, z:0 },
+                material:{ type: 'phong', color: 0xFF00999 }, 
+              }, { poi_id: 'jsartoolkit_marker_64' });
+
+            awe.pois.add({id: 'jsartoolkit_marker_64', position: {x: 0, y:0, z:0}, visible: false});
+              awe.projections.add({
+                id: 'marker_projection_2',
+                geometry: {shape: 'cube', x:50, y: 50, z: 10},
+                position: {x:30, y: 0, z: 0},
+                rotation: {x:0, y:0, z:0},
+                material:{ type: 'phong', color: 0xFFFFFF}, 
+              }, {poi_id: 'jsartoolkit_marker_64'});
+
+              awe.pois.add({id: 'jsartoolkit_marker_64', position: {x: 0, y:0, z:0}, visible: false});
+              awe.projections.add({
+                id: 'marker_projection_3',
+                geometry: {shape: 'cube', x:50, y: 50, z: 10},
+                position: {x:-30, y: 0, z: 0},
+                rotation: {x:0, y:0, z:0},
+                material:{ type: 'phong', color: 0xFF93245}, 
+              }, {poi_id: 'jsartoolkit_marker_64'});
+
+              awe.pois.add({id: 'jsartoolkit_marker_64', position: {x: 0, y:0, z:0}, visible: false});
+              awe.projections.add({
+                id: 'marker_projection_4',
+                geometry: {shape: 'cube', x:50, y: 50, z: 10},
+                position: {x:-90, y: 0, z: 0},
+                rotation: {x:0, y:0, z:0},
+                material:{ type: 'phong', color: 0xFF556677}, 
+              }, {poi_id: 'jsartoolkit_marker_64'});
+
+              //add pois for on screen buttons
+              awe.pois.add({ id:'pink_plus', position: { x:-20, y:-100, z:-200 } });
+              awe.pois.add({ id:'pink_minus', position: { x:20, y:-100, z:-200 } });
+
+              awe.pois.add({ id:'white_plus', position: { x:-100, y:-100, z:-200 } });
+              awe.pois.add({ id:'white_minus', position: { x:-70, y:-100, z:-200 } });
+        
+              awe.pois.add({ id:'red_plus', position: { x: 60, y:-100, z:-200 } });
+              awe.pois.add({ id:'red_minus', position: { x: 90, y:-100, z:-200 } });
+
+              awe.pois.add({ id:'grey_plus', position: { x: 120, y:-100, z:-200 } });
+              awe.pois.add({ id:'grey_minus', position: { x: 150, y:-100, z:-200 } });
+
+              awe.pois.add({id:'text', position: {x:0, y:0, z:0}});
+
+
+              awe.projections.add({ 
+                id:'pinkP', 
+                geometry:{ shape:'plane', height: 20, width: 20}, 
+                material:{ 
+                  type: 'phong',
+                  color:0xFF00999, 
+                },
+              }, { poi_id: 'pink_plus' });
+
+              awe.projections.add({ 
+                id:'pinkM', 
+                geometry:{ shape:'plane', height: 20, width: 20}, 
+                material:{ 
+                  type: 'phong',
+                  color:0xFF00999, 
+                },
+              }, { poi_id: 'pink_minus' });
+
+              awe.projections.add({ 
+                id:'whiteP', 
+                geometry:{ shape:'plane', height: 20, width: 20}, 
+                material:{ 
+                  type: 'phong',
+                  color:0xFFFFFF, 
+                },
+              }, { poi_id: 'white_plus' });
+
+              awe.projections.add({ 
+                id:'whiteM', 
+                geometry:{ shape:'plane', height: 20, width: 20}, 
+                material:{ 
+                  type: 'phong',
+                  color:0xFFFFFF, 
+                },
+              }, { poi_id: 'white_minus' });
+              
+               awe.projections.add({ 
+                id:'redP', 
+                geometry:{ shape:'plane', height: 20, width: 20}, 
+                material:{ 
+                  type: 'phong',
+                  color:0xFF93245, 
+                },
+              }, { poi_id: 'red_plus' });
+
+              awe.projections.add({ 
+                id:'redM', 
+                geometry:{ shape:'plane', height: 20, width: 20}, 
+                material:{ 
+                  type: 'phong',
+                  color:0xFF93245, 
+                },
+              }, { poi_id: 'red_minus' });
+
+              awe.projections.add({ 
+                id:'greyP', 
+                geometry:{ shape:'plane', height: 20, width: 20}, 
+                material:{ 
+                  type: 'phong',
+                  color:0xFF556677, 
+                },
+              }, { poi_id: 'grey_plus' });
+
+              awe.projections.add({ 
+                id:'greyM', 
+                geometry:{ shape:'plane', height: 20, width: 20}, 
+                material:{ 
+                  type: 'phong',
+                  color:0xFF556677, 
+                },
+              }, { poi_id: 'grey_minus' });
+
+			        awe.plugins.view('render_effects').enable();
+			        awe.plugins.view('jsartoolkit').enable();
+			      },
+          },
+          {
+            capabilities: [],
+            success: function() { 
+		          document.body.innerHTML = '<p>Try this demo in the latest version of Chrome or Firefox on a PC or Android device</p>';
+            },
+          },
+        ]);
+      }
+    });
+  });
+</script>
+</body>
+</html>
