@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>threeJS</title>
+</head>
+<body>
+<canvas id="Canvas"></canvas>
+<script src="three.js-dev/build/three.js"></script>
+
+<!-- Creating Our Custom Shaders -->
+<!-- Vertex Shader -->
+<script type="x-shader/x-vertex" id="vertexShader">
+void main() 
+{
+	vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+	gl_Position = projectionMatrix * modelViewPosition;
+}
+</script>
+<script type="x-shader/x-fragment" id="fragmentShader">
+void main() {
+	gl_FragColor = vec4(5.0, 0.0, 5.0, 0.0);
+}
+</script>
+
+<script type="x-shader/x-vertex" id="vertexShader2">
+attribute float vertexDisplacement;
+uniform float delta;
+varying float vOpacity;
+varying vec3 vUv;
+
+void main() 
+{
+    vUv = position;
+    vOpacity = vertexDisplacement;
+
+    vec3 p = position;
+    //you can adjust the displacement of the vertex shader here to make a different distortion 
+    p.x += sin(vertexDisplacement) * 5.0;
+    p.y += cos(vertexDisplacement) * 5.0;
+
+	vec4 modelViewPosition = modelViewMatrix * vec4(p, 1.0);
+	gl_Position = projectionMatrix * modelViewPosition;
+}
+</script>
+<script type="x-shader/x-fragment" id="fragmentShader2">
+//the fragment shader here will be used to distort the color 
+uniform float delta;
+varying float vOpacity;
+varying vec3 vUv;
+
+void main() {
+
+    float r = 1.5 + cos(vUv.x * delta);
+    float g = 1.5 + sin(delta) * 0.5;
+    float b = 0.5;
+    vec3 rgb = vec3(r, g, b);
+
+	gl_FragColor = vec4(rgb, vOpacity);
+}
+</script>
+
+<script>
+   var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('Canvas'), 	antialias: true});
+       renderer.setClearColor(13362943);
+       renderer.setPixelRatio(window.devicePixelRatio);
+       renderer.setSize(window.innerWidth, window.innerHeight);
+
+   var camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 3000);
+
+	var scene = new THREE.Scene();
+
+
+	 var customUniforms = {
+        delta: {value: 0}
+    };
+    var customMat = new THREE.ShaderMaterial({
+        uniforms: customUniforms,
+        vertexShader: document.getElementById('vertexShader2').textContent,
+        fragmentShader: document.getElementById('fragmentShader2').textContent
+    });
+
+    //create two cubes one with buffer geometry and the other with cube geometry to show how manipulating the vertices needs to only happen with buffer geometry 
+    var boxgeometry = new THREE.BoxBufferGeometry(100, 100, 100, 10, 10, 10);
+    var boxmesh = new THREE.Mesh(boxgeometry, customMat);
+    boxmesh.position.set(-100, 0, -1000);
+    scene.add(boxmesh);
+
+
+    var cubegeometry = new THREE.CubeGeometry(100, 100, 100);
+    var cubemesh = new THREE.Mesh(cubegeometry, customMat);
+    cubemesh.position.set(150, 0, -1000);
+    scene.add(cubemesh);
+
+    //The float 32 array takes the full size of the points in our geometry, then we iterate over these vertices
+    var vertexDisplacement = new Float32Array(boxgeometry.attributes.position.count);
+
+    for (var i = 0; i < vertexDisplacement.length; i ++) {
+        vertexDisplacement[i] = Math.sin(i);
+    }
+    //add attributes can only be applied to buffer geometry, however the same effect will be applied to any objects with the customMat material
+    boxgeometry.addAttribute('vertexDisplacement', new THREE.BufferAttribute(vertexDisplacement, 1));
+
+
+    requestAnimationFrame(render);
+
+
+    var delta = 0;
+    function render() { 
+        delta += 0.1;
+        //the delta value can be applied to the fragment shader creating this occelating effect 
+        boxmesh.material.uniforms.delta.value = 0.5 + Math.sin(delta) * 0.5;
+        //Only the box with Buffer Geometry will be able to have its physical mesh animated
+        for (var i = 0; i < vertexDisplacement.length; i += 1) {
+            vertexDisplacement[i] = 0.5 + Math.sin(i + delta) * 0.25;
+        }
+        boxmesh.geometry.attributes.vertexDisplacement.needsUpdate = true;
+
+    	renderer.render(scene, camera);
+    	requestAnimationFrame(render);
+    }
+    </script>
+
+</body>
+</html>

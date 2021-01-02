@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+  <title>Test</title>
+</head>
+<body>
+  <script src="js/three.min.js"></script>
+  <script src="js/OrbitControls.js"></script>
+
+  <script>
+
+    init();
+    animate();
+
+    // Sets up the scene.
+    function init() {
+
+      scene = new THREE.Scene();
+      var WIDTH = window.innerWidth,
+          HEIGHT = window.innerHeight;
+
+      // Create a renderer and add to the DOM.
+      renderer = new THREE.WebGLRenderer({antialias:true});
+      renderer.setSize(WIDTH, HEIGHT);
+      document.body.appendChild(renderer.domElement);
+
+      camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 20000);
+      camera.position.set(0,6,0);  
+      scene.add(camera);
+
+      window.addEventListener('resize', function() {
+        var WIDTH = window.innerWidth,
+            HEIGHT = window.innerHeight;
+        renderer.setSize(WIDTH, HEIGHT);
+        camera.aspect = WIDTH / HEIGHT;
+        camera.updateProjectionMatrix();
+      });
+
+      renderer.setClearColorHex(0x333F47, 1);
+   
+      var light = new THREE.PointLight(0xffffff);
+      light.position.set(-100,200,100);
+      scene.add(light);
+
+      var cylgeometry = new THREE.CylinderGeometry(3, 3, 7, 7);
+      var cylmaterial = new THREE.MeshLambertMaterial();
+      var cylmesh = new THREE.Mesh(cylgeometry, cylmaterial);
+      cylmesh.position.set(0.9, -5, -6);
+      scene.add(cylmesh);
+      
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+    }
+
+
+    function animate(){
+      controls.update();
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+
+  </script>
+
+</body>
+</html>

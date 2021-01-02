@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Trick Cubes</title>
+</head>
+<body>
+  <div id="container"></div>
+  <script type="text/javascript" src="lib/awe-loader.js"></script>
+  <script>
+  
+  window.addEventListener('load', function() {
+  var largeBox_open = false;
+  var mediumBox_open = false; 
+
+  window.awe.init({
+    device_type: awe.AUTO_DETECT_DEVICE_TYPE,
+    settings: {
+      container_id: 'container',
+      fps: 30,
+      default_camera_position: { x:0, y:0, z:0 },
+      default_lights: [{
+        id: 'point_light',
+        type: 'point',
+        color: 0xFFFFFF
+      }]
+    },
+    ready: function(){
+      awe.util.require([
+      {
+        capabilities: ['gum', 'webgl'],
+        files: [
+          ['lib/awe-standard-dependencies.js', 'lib/awe-standard.js'],
+            'lib/awe-standard-object_clicked.js',
+            'lib/awe-jsartoolkit-dependencies.js',
+            'lib/awe.marker_ar.js'
+        ],
+        success: function(){
+          window.awe.setup_scene();
+          
+            awe.pois.add({id: 'marker', position: {x: 0, y: 0, z: 10000}, visible: false});
+
+            awe.projections.add({ 
+              id: 'largeBox',
+              geometry: {shape: 'cube', x: 180, y: 150, z: 180},
+              position: {x: 0, y: 0, z: 0},
+              rotation: {x: 90, z: 45},
+              material: { color:0xFFFFFF, opacity:1.0, transparent:true, wireframe:false, fog:true }
+            }, {poi_id: 'marker'});
+
+            awe.projections.add({
+              id: 'mediumBox',
+              geometry: {shape: 'cube', x: 90, y: 90, z: 90},
+              rotation: {y: 45},
+              position: {x: -5, y: -31, z: -5},
+              material: {
+                type: 'phong',
+                color: 0xFF0000
+              }
+            }, {poi_id: 'marker'});
+
+            //adding our last box 
+             awe.projections.add({
+              id: 'smallBox',
+              geometry: {shape: 'cube', x: 50, y: 50, z: 50},
+              rotation: {y: 45},
+              position: {x: -5, y: -31, z: -5},
+              material: {
+                type: 'phong',
+                color: 0xFF98889
+              }
+            }, {poi_id: 'marker'});
+ 
+            awe.events.add([{
+              id: 'ar_tracking_marker',
+              device_types: {
+                pc: 1,
+                android: 1
+              },
+              register: function(handler) {
+                window.addEventListener('ar_tracking_marker', handler, false);
+              },
+              unregister: function(handler) {
+                window.removeEventListener('ar_tracking_marker', handler, false);
+              },
+              handler: function(event) {
+                if (event.detail) {
+                  if (event.detail['64']) {
+                    awe.pois.update({
+                      data: {
+                        visible: true,
+                        position: {x: 0, y: 0, z: 0},
+                        matrix: event.detail['64'].transform
+                      },
+                      where: {
+                        id: 'marker'
+                      }
+                    });
+                    awe.projections.update({
+                      data: {
+                        visible: true
+                      },
+                      where: {
+                        id: 'largeBox'
+                      }
+                    });
+                  } else if (largeBox_open) {
+                    awe.projections.update({
+                      data: {
+                        visible: false
+                      },
+                      where: {
+                        id: 'largeBox'
+                      }
+                    });
+                  }
+                  else {
+                    awe.pois.update({
+                      data: {
+                        visible: false
+                      },
+                      where: {
+                        id: 'marker'
+                      }
+                    });
+                  }
+                  awe.scene_needs_rendering = 1;
+                }
+              }
+            }]);
+
+            window.addEventListener('object_clicked', function(e) {
+              switch (e.detail.projection_id) {
+                case 'largeBox':
+                  if (!largeBox_open) {
+                    awe.projections.update({
+                      data: {
+                        animation: {
+                          duration: 1
+                        },
+                        position: {y: 120}
+                      },
+                      where: {id: 'mediumBox'}
+                    });
+
+                  } else {
+                    awe.projections.update({
+                      data: {
+                        animation: {
+                          duration: 1
+                        },
+                        position: {y: -31}
+                      },
+                      where: {id: 'mediumBox'}
+                    });
+                  }
+              largeBox_open = !largeBox_open;
+                break;
+                case 'mediumBox':
+                //adding our last conditional in the case statement 
+                if (!mediumBox_open) {
+                    awe.projections.update({
+                      data: {
+                        animation: {
+                          duration: 1
+                        },
+                        position: {y: 190}
+                      },
+                      where: {id: 'smallBox'}
+                    });
+
+                  } else {
+                    awe.projections.update({
+                      data: {
+                        animation: {
+                          duration: 1
+                        },
+                        position: {y: -31}
+                      },
+                      where: {id: 'smallBox'}
+                    });
+                  }
+              mediumBox_open = !mediumBox_open;
+                break;
+              }
+            }, false);
+        }//success
+      },
+      //Defining Our Capabilities  
+      {
+          capabilities: [],
+          success: function() { 
+            document.body.innerHTML = '<p>Try this demo in the latest version of Chrome or Firefox on a PC or Android device</p>';
+          }
+        }
+     ]);//awe.util.require
+    }//ready()
+  }); // window.awe.init()
+}); // load
+  </script>
+</body>
+</html>

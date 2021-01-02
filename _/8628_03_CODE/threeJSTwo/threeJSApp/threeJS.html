@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>threeJS</title>
+</head>
+<body>
+<canvas id="Canvas"></canvas>
+<script src="three.js-dev/build/three.js"></script>
+<script>
+	//antialias to make more clearer 
+	var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('Canvas'), antialias: true});
+        renderer.setClearColor(13362943);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+	var camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 3000);
+
+	var scene = new THREE.Scene();
+
+	//create a pyrimid 
+	var pyramidgeometry = new THREE.CylinderGeometry( 0, 0.8, 2, 4 );
+	var pyramidmaterial = new THREE.MeshLambertMaterial({color: 0xF3FFE2});
+	var pyramidmesh = new THREE.Mesh(pyramidgeometry, pyramidmaterial);
+	//camera's default position is at 0,0,0 so we need to set the z position further back so it will not be on top of the camera 
+	pyramidmesh.position.set(0,2,-10);
+
+	scene.add(pyramidmesh);
+	 
+	var lightOne = new THREE.AmbientLight(0xfffff, 0.5);
+	scene.add(lightOne);
+	var lightTwo = new THREE.PointLight(0xfffff, 0.5);
+	scene.add(lightTwo);
+
+	requestAnimationFrame(render);
+
+	function render(){
+		pyramidmesh.rotation.y += 0.1;
+		renderer.render(scene, camera);
+		requestAnimationFrame(render);
+	}
+</script>
+
+</body>
+</html>

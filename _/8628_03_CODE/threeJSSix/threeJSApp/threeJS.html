@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>threeJS</title>
+</head>
+<body>
+<canvas id="Canvas"></canvas>
+<script src="three.js-dev/build/three.js"></script>
+
+<script>
+
+    var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('Canvas'), antialias: true});
+        renderer.setClearColor(0x3333333);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+    //perspective camera is the most basic camera. First parameter is verticle field view, next is aspect ratio, near and far plane, and clipping plane.
+    var camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 20000);
+    //Orthographic camera has no perspective and has an assmetric view. The parameters here are the left, right, top, bottom, and clipping points. There is no perspective here as in things dont get smaller as they get further away.
+    // var camera = new THREE.OrthographicCamera(-300, 300, 200, -200, 0.1, 10000);
+    camera.position.z = 500;
+
+    //Create a camera helper to show where the camera is in the space *You will need two cameras here one that will continue to show the scene and the other that will be shown with the camera helper where its potential position and range is*
+    // var secondCamera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 20000);
+    // var cameraHelper = new THREE.CameraHelper(secondCamera);
+
+    var scene = new THREE.Scene();
+
+    //add this under the scene in order to keep within the scope of the scene 
+    // scene.add(cameraHelper);
+ 
+    var conegeometry = new THREE.CylinderGeometry( 100, 200, 100, 500);
+    var conematerial = new THREE.MeshLambertMaterial();
+    var conemesh = new THREE.Mesh(conegeometry, conematerial);
+    conemesh.position.set(-150, -50, -500);
+    conemesh.rotation.x = -100;
+    scene.add(conemesh);
+
+    var cubegeometry = new THREE.CubeGeometry( 90, 100, 90, 200);
+    var cubematerial = new THREE.MeshLambertMaterial();
+    var cubemesh = new THREE.Mesh(cubegeometry, cubematerial);
+    cubemesh.position.set(200, -50, -500);
+    cubemesh.rotation.x = -100;
+    scene.add(cubemesh);
+
+    var planeGeometry = new THREE.PlaneGeometry(900, 500, 300, 900);
+    var planeMaterial = new THREE.MeshPhongMaterial({color: 0x3333333});
+    var planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+    planeMesh.position.set(50, -70, -500);
+    planeMesh.rotation.set(-290, 0, 0);
+    scene.add(planeMesh);
+
+    //AMBIENT LIGHT floods scene with light parameters are color and intensity, position doesnt matter here
+    var lightOne = new THREE.AmbientLight(0xfffff, 0.5);
+    lightOne.position.z = 300;
+    scene.add(lightOne);
+    //POINT LIGHT is where the position matters so you will set the color, intensity and distance it will radiate out to.
+    // var lightOne = new THREE.PointLight(0xffff, 0.5);
+
+    //DIRECTIONAL LIGHT is a really powerful light source that comes from a single direction. Here you will set the color, intensity, and specify a target. We will be targeting the first cone here so you can see the shadow being casted onto the other cylinder 
+   // var lightOne = new THREE.DirectionalLight(0xffff, 0.5, 1000);
+   //  lightOne.target = conemesh; 
+
+    //SPOT LIGHT also must point towards a target and will radiate light in a cone light fashion. Lighting is a similar result to the directional but not as powerful.
+    // var lightOne = new THREE.SpotLight(0xffff, 0.5, 1000);
+    // lightOne.target = conemesh;
+
+    //HEMISPHERE LIGHT does not need an actually position and will apply to the whole scene. But will take two color values that will come from the top and bottom
+    // var lightOne = new THREE.HemisphereLight(0xffff, 0x0808dd, 1);
+    // scene.add(lightOne);
+
+    //LIGHTING EFFECTS with shadows using the renderer and shadow map 
+    // renderer.shadowMap.enable = true;
+    //set type of shadow map 
+    // renderer.shadowMap.type = THREE.PCFShadowMap;
+
+    // var lightOne = new THREE.SpotLight(0xffff, 2.0, 3000);
+    // lightOne.position.x = 50;
+    // lightOne.target = conemesh;
+
+    // lightOne.castShadow = true;
+    // lightOne.shadow = new THREE.LightShadow(new THREE.PerspectiveCamera(100, 1, 500, 1000));
+    // lightOne.shadow.bias = 0.0001;
+    // lightOne.shadow.mapSize.width = 2048 * 2;
+    // lightOne.shadow.mapSize.height = 2048 * 2;
+    // scene.add(lightOne);
+
+    //HELPER FOR LIGHTS each light has a different kind of helper that you specify. For here we are specifying the point light helper. You can do these for the other lights just specify the type of helper. 
+
+    //Point Light Helper 
+    // var lightHelper = new THREE.PointLightHelper(lightOne);
+    // scene.add(lightHelper);
+
+    //Directional Light Helper 
+    // var lightHelper = new THREE.DirectionalLightHelper(lightOne);
+    // scene.add(lightHelper);
+    // //set the properties of the meshes to cast and receive a shadow 
+    // conemesh.castShadow = true;
+    // cubemesh.castShadow = true;
+    // planeMesh.receiveShadow = true; 
+
+    requestAnimationFrame(render);
+    //rotating camera to create more of a panoramic scene 
+	// var delta = 0;
+    function render(){
+        //Because the directional light points in a specific direction we need to go into the render loop and call update on the helper. 
+        // lightHelper.update();
+
+    	// delta += 0.01;
+    	// camera.lookAt(lightOne.position);
+    	// camera.position.x = Math.sin(delta) * 2000;
+    	// camera.position.z = Math.cos(delta) * 2000;
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>threeJS</title>
+</head>
+<body>
+<canvas id="Canvas"></canvas>
+<script src="three.js-dev/build/three.js"></script>
+<script>
+	//antialias to make more clearer 
+	var renderer = new THREE.WebGLRenderer({canvas: document.getElementById('Canvas'), antialias: true});
+        renderer.setClearColor(13362943);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+	var camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 3000);
+
+	var scene = new THREE.Scene();
+
+	//create a pyramid 
+	var pyramidgeometry = new THREE.CylinderGeometry( 0, 0.8, 2, 4 );
+	var pyramidmaterial = new THREE.MeshLambertMaterial({color: 0xF3FFE2});
+	var pyramidmesh = new THREE.Mesh(pyramidgeometry, pyramidmaterial);
+	//camera's default position is at 0,0,0 so we need to set the z position further back so it will not be on top of the camera 
+	pyramidmesh.position.set(0,2,-10);
+	scene.add(pyramidmesh);
+
+	//create a box
+	var boxgeometry = new THREE.BoxGeometry(1, 1, 1);
+    var boxmaterial = new THREE.MeshBasicMaterial();
+    var boxmesh = new THREE.Mesh(boxgeometry, boxmaterial);
+    boxmesh.position.set(-0.9, 0, -6);
+    scene.add(boxmesh);
+
+    //create a sphere
+    var spheregeometry = new THREE.SphereGeometry(0.5);
+    var spherematerial = new THREE.MeshBasicMaterial({wireframe: true, color: 0x000000});
+    var spheremesh = new THREE.Mesh(spheregeometry, spherematerial);
+    spheremesh.position.set(0.9, 0, -6);
+    scene.add(spheremesh);
+
+    //create a 2D circle 
+    var circlegeometry = new THREE.CircleBufferGeometry(0.5);
+    var circlematerial = new THREE.MeshBasicMaterial({color: 0x000000});
+    var circlemesh = new THREE.Mesh(circlegeometry, circlematerial);
+    circlemesh.position.set(2, 0, -6);
+    circlemesh.rotation.set(0,0.5,0);
+    scene.add(circlemesh);
+
+    //parametric geometry which creates a flat plane which can be distorted 
+    var paraFunc = function (a, b){
+    	var x = -5 + 5 * a;
+    	var y = -5 + 5 * b;
+    	var z = (Math.sin(a * Math.PI) + Math.sin(b * Math.PI)) * -7;
+
+    	return new THREE.Vector3(x, y, z);
+    }
+    var parageometry = new THREE.ParametricGeometry(paraFunc, 8, 8);
+    var paramaterial = new THREE.MeshLambertMaterial({color: 0xF3FFE2});
+    var paramesh = new THREE.Mesh(parageometry, paramaterial);
+    paramesh.position.set(0, -2, -100);
+    scene.add(paramesh);
+
+    //how to access vertices of objects using a basic Plane geometry 
+    var planegeometry = new THREE.PlaneGeometry(10, 10);
+    var planematerial = new THREE.MeshBasicMaterial();
+    var planemesh = new THREE.Mesh(planegeometry, planematerial);
+    planemesh.position.set(0, -20, -100);
+    scene.add(planemesh);
+
+	//mention we will not spend a lot of time discussing lights but we will use it in this section to change the appearence of the objects 
+	var lightOne = new THREE.AmbientLight(0xfffff, 0.5);
+	scene.add(lightOne);
+	var lightTwo = new THREE.PointLight(0xfffff, 0.5);
+	scene.add(lightTwo);
+
+	requestAnimationFrame(render);
+
+	//access one of vertices within the geometry using a delta
+	var delta = 0;
+	function render(){
+		pyramidmesh.rotation.y += 0.1;
+		paramesh.rotation.x += 0.1;
+		paramesh.rotation.y += 0.1;
+
+		//well move the vertices of the plane object on the x axis 
+		delta += 0.1; 
+		planegeometry.vertices[0].z = -25 + Math.sin(delta) * 50;
+		planegeometry.verticesNeedUpdate = true;
+		renderer.render(scene, camera);
+		requestAnimationFrame(render);
+	}
+</script>
+
+</body>
+</html>
